@@ -1,0 +1,18 @@
+#!/bin/bash
+set -euxo pipefail
+
+# Define the image name
+IMAGE_NAME=flash-attn
+
+# Build the Docker image
+docker build -t $IMAGE_NAME .
+
+# Run the Docker container
+docker run \
+    --interactive \
+    --tty \
+    --rm \
+    --gpus all \
+    --publish 8888:8888 \
+    --volume "$(pwd)":/work \
+    $IMAGE_NAME
