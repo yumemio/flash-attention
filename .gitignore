@@ -1,27 +1,5 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-
-# C extensions
-*.so
-
-# Distribution / packaging
-bin/
-build/
-develop-eggs/
-dist/
-eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# IDE-related
-.idea/
-
-# Dev
-venv
+.ipynb_checkpoints
+.Trash-[0-9]
+__pycache__
+*.sw[p-z]
+data/
