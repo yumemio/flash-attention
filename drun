@@ -5,14 +5,20 @@ set -euxo pipefail
 IMAGE_NAME=flash-attn
 
 # Build the Docker image
-docker build -t $IMAGE_NAME .
+DOCKER_BUILDKIT=1 docker build -t $IMAGE_NAME training/
 
 # Run the Docker container
+# --shm-size: because flash-attn uses the shared memory.
+#   default is mere 64mb. `--ipc=host` may also work
+#   (https://catalog.ngc.nvidia.com/orgs/nvidia/containers/pytorch)
 docker run \
     --interactive \
     --tty \
     --rm \
     --gpus all \
+    --shm-size=24gb \
     --publish 8888:8888 \
     --volume "$(pwd)":/work \
     $IMAGE_NAME
+
+    #--ipc=host \

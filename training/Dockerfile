@@ -7,7 +7,7 @@ FROM nvcr.io/nvidia/pytorch:22.12-py3 as base
 ENV HOST docker
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 # https://serverfault.com/questions/683605/docker-container-time-timezone-will-not-reflect-changes
-ENV TZ America/Los_Angeles
+ENV TZ Asia/Tokyo
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # git for installing dependencies
@@ -89,3 +89,15 @@ RUN pip install flash-attn==2.5.9.post1
 
 # Install CUDA extensions for fused dense
 RUN pip install git+https://github.com/HazyResearch/flash-attention@v2.5.9.post1#subdirectory=csrc/fused_dense_lib
+
+# Install helper apps
+RUN apt install --yes vim less tmux htop
+RUN pip install bpytop
+
+# Install Jupyter
+# --update is needed because nvcr.io image comes with jupyterlab
+# See: https://github.com/jupyterlab/jupyterlab/issues/13534#issuecomment-1358341161
+RUN pip install --upgrade jupyterlab
+
+# Set the default command to run Jupyter Notebook
+CMD [ "jupyter", "lab", "--ip", "0.0.0.0", "--port", "8888", "--no-browser", "--allow-root", "--NotebookApp.token=JulianJovyan", "--notebook-dir=/work" ]
