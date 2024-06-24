@@ -122,6 +122,44 @@ class TestLMDataModule:
             assert x.dtype == torch.long
             assert torch.allclose(x[:, 1:], y[:, :-1])
 
+    def test_minipile(self):
+        batch_size = 8
+        dataset_name = 'JeanKaddour/minipile'
+        dataset_config_name = None
+        data_dir = Path(os.getenv('DATA_DIR', current_dir.parent.parent / 'data'))
+        cache_dir = data_dir / 'minipile' / 'cache'
+        max_length = 2048
+        datamodule = LMDataModule(dataset_name, tokenizer_name='gpt2',
+                                  dataset_config_name=dataset_config_name,
+                                  max_length=max_length, cache_dir=cache_dir,
+                                  add_eos=True, batch_size=batch_size,
+                                  num_workers=num_cpu_cores())
+        datamodule.prepare_data()
+        datamodule.setup(stage='fit')
+        train_loader = datamodule.train_dataloader()
+        val_loader = datamodule.val_dataloader()
+        datamodule.setup(stage='test')
+        test_loader = datamodule.test_dataloader()
+        
+        # We don't know the length of the dataset in advance
+        # train_len = 9035582198
+        # val_len = 4434897
+        # test_len = 4434897
+        # assert len(train_loader) == div_up((train_len - 1) // max_length, batch_size)
+        # assert len(val_loader) == div_up((val_len - 1) // max_length, batch_size)
+        # assert len(test_loader) == div_up((test_len - 1) // max_length, batch_size)
+        print( "Dataset length breakdown:")
+        print(f"- train: {len(train_loader)}")
+        print(f"-   val: {len(val_loader)}")
+        print(f"-  test: {len(test_loader)}")
+        
+        for loader in [train_loader, val_loader, test_loader]:
+            x, y = next(iter(loader))
+            assert x.dim() == 2
+            assert x.shape == (batch_size, max_length)
+            assert x.dtype == torch.long
+            assert torch.allclose(x[:, 1:], y[:, :-1])
+
     def test_lambada(self):
         batch_size = 8
         dataset_name = 'lambada'
